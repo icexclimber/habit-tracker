@@ -23,11 +23,16 @@
 
 @import '@ionic/angular/css/palettes/dark.system.css';
 
+/* Reset global y compatibilidad multitáctil */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
 
-
-
-/* 1. MODO CLÁSICO (Por defecto - Azul Corporativo) */
-body{
+/* 1. MODO CLÁSICO (Por defecto - Ámbar / Cálido) */
+body {
   --bg-app: #1c1410;
   --bg-card: #2a1f19;
   --text-main: #fef3c7;
@@ -37,7 +42,7 @@ body{
   --ion-color-success: #f59e0b;
 }
 
-/* 2. MODO OSCURO (Dark Mode Elegante) */
+/* 2. MODO CRIMSON / OSCURO */
 body.theme-crimson {
   --bg-app: #141414;
   --bg-card: #1f1f1f;
@@ -48,7 +53,7 @@ body.theme-crimson {
   --ion-color-success: #f87171;
 }
 
-/* 3. MODO VINTAGE (Tonos tierra, sepia y papel antiguo) */
+/* 3. MODO AMETHYST / VINTAGE */
 body.theme-amethyst {
   --bg-app: #181124;
   --bg-card: #251b37;
@@ -59,7 +64,7 @@ body.theme-amethyst {
   --ion-color-success: #c084fc;
 }
 
-/* 4. MODO RETRO 80s (Arcade, fucsia y cyan brillante) */
+/* 4. MODO MIDNIGHT / RETRO 80s */
 body.theme-midnight {
   --bg-app: #0a1128;
   --bg-card: #101c3a;
@@ -70,7 +75,7 @@ body.theme-midnight {
   --ion-color-success: #06b6d4;
 }
 
-/* 5. MODO EMERALD / FOREST (Verdes profundos y naturales) */
+/* 5. MODO EMERALD / FOREST */
 body.theme-emerald {
   --bg-app: #0b251d;
   --bg-card: #13382d;
@@ -81,7 +86,7 @@ body.theme-emerald {
   --ion-color-success: #34d399;
 }
 
-/* Aplicación automática de variables a componentes Ionic y tarjetas */
+/* Aplicación automática de variables a componentes de Ionic */
 ion-content {
   --background: var(--bg-app) !important;
 }
@@ -99,6 +104,7 @@ ion-list {
   }
 }
 
+/* Clases de utilidad custom y tarjetas */
 .section-title {
   color: var(--text-main) !important;
 }
@@ -115,14 +121,18 @@ ion-list {
 
 .month-heatmap-container {
   border-top: 1px solid var(--border-color) !important;
-  .month-header { color: var(--text-muted) !important; }
+  
+  .month-header { 
+    color: var(--text-muted) !important; 
+  }
+  
   .month-day-box {
     background: var(--border-color);
     color: var(--text-muted);
+    
     &.not-scheduled {
       border: 1px dashed var(--border-color);
       background: transparent;
     }
   }
 }
-
