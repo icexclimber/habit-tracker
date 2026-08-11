@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, EnvironmentInjector, runInInjectionContext } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -16,8 +16,14 @@ import {
 import { addIcons } from 'ionicons';
 import { mailOutline, lockClosedOutline, logoGoogle } from 'ionicons/icons';
 
-// Importaciones de AngularFire Auth
-import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithRedirect, getRedirectResult, GoogleAuthProvider } from '@angular/fire/auth';
+// Importaciones de AngularFire Auth (signInWithPopup en lugar de redirección)
+import { 
+  Auth, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signInWithPopup, 
+  GoogleAuthProvider 
+} from '@angular/fire/auth';
 
 @Component({
   selector: 'app-login',
@@ -42,7 +48,6 @@ export class LoginPage implements OnInit {
   private fb = inject(FormBuilder);
   private auth = inject(Auth);
   private router = inject(Router);
-  private injector = inject(EnvironmentInjector); // Inyector para el contexto de AngularFire
 
   constructor() {
     addIcons({
@@ -52,22 +57,10 @@ export class LoginPage implements OnInit {
     });
   }
 
-  async ngOnInit() {
+  ngOnInit() {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
-    });
-
-    //getRedirectResult en el contexto de inyección para evitar advertencias de Angular/Zone.js
-    runInInjectionContext(this.injector, async () => {
-      try {
-        const result = await getRedirectResult(this.auth);
-        if (result) {
-          this.router.navigate(['/dashboard']);
-        }
-      } catch (error: any) {
-        console.error('Error procesando la redirección de Google:', error.message);
-      }
     });
   }
 
@@ -77,7 +70,6 @@ export class LoginPage implements OnInit {
 
   async onSubmit() {
     if (this.loginForm.valid) {
-      // Quitar el foco activo para evitar el error de aria-hidden durante la transición
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
@@ -107,9 +99,13 @@ export class LoginPage implements OnInit {
   async loginWithGoogle() {
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithRedirect(this.auth, provider);
+      // Flujo directo vía Pop-up (recomendado para Vercel)
+      const result = await signInWithPopup(this.auth, provider);
+      if (result.user) {
+        this.router.navigate(['/dashboard']);
+      }
     } catch (error: any) {
-      console.error('Error iniciando la redirección con Google:', error.message);
+      console.error('Error iniciando sesión con Google:', error.message);
     }
   }
 }
