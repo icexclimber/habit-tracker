@@ -5,8 +5,8 @@ import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { mailOutline, lockClosedOutline, logoGoogle } from 'ionicons/icons';
 import { Router } from '@angular/router';
-// Importaciones clave de Firebase
-import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from '@angular/fire/auth';
+// Cambiamos signInWithPopup por signInWithRedirect y getRedirectResult
+import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithRedirect, getRedirectResult, GoogleAuthProvider } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-login',
@@ -27,11 +27,22 @@ export class LoginPage implements OnInit {
     addIcons({ mailOutline, lockClosedOutline, logoGoogle });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+
+    // Escucha el retorno de la redirección de Google
+    try {
+      const result = await getRedirectResult(this.auth);
+      if (result) {
+        // Si el usuario acaba de volver del login de Google, lo mandamos al dashboard
+        this.router.navigate(['/dashboard']);
+      }
+    } catch (error: any) {
+      console.error('Error procesando redirección de Google:', error.message);
+    }
   }
 
   toggleMode() {
@@ -56,7 +67,6 @@ export class LoginPage implements OnInit {
         
       } catch (error: any) {
         console.error('Error de autenticación:', error.message);
-        // Aquí luego podemos agregar un mensaje de error visual (Toast)
       }
     } else {
       this.loginForm.markAllAsTouched();
@@ -66,10 +76,10 @@ export class LoginPage implements OnInit {
   async loginWithGoogle() {
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(this.auth, provider);
-      this.router.navigate(['/dashboard']);
+      // Redirige al flujo seguro de Google
+      await signInWithRedirect(this.auth, provider);
     } catch (error: any) {
-      console.error('Error con Google:', error.message);
+      console.error('Error iniciando redirección con Google:', error.message);
     }
   }
 }

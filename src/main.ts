@@ -4,19 +4,32 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalo
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 
-// 1. IMPORTAR FIREBASE
+// Importar Firebase
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { environment } from './environments/environment';
 
+// Importar registrar de íconos e íconos utilizados
+import { addIcons } from 'ionicons';
+import { mailOutline, lockClosedOutline, logoGoogle } from 'ionicons/icons';
+
+// Registrar íconos globalmente para que estén disponibles en toda la app
+addIcons({
+  'mail-outline': mailOutline,
+  'lock-closed-outline': lockClosedOutline,
+  'logo-google': logoGoogle
+});
+
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideIonicAngular(),
+    provideIonicAngular({
+      mode: 'md' // Forzar modo Material Design o 'ios' para consistencia visual
+    }),
     provideRouter(routes, withPreloading(PreloadAllModules)),
     
-    // 2. REGISTRAR LOS PROVEEDORES DE FIREBASE AQUÍ
+    // Proveedores de Firebase
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore())
