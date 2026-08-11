@@ -2,8 +2,9 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import confetti from 'canvas-confetti';
 
-// Componentes Standalone de Ionic completos
+// Componentes Standalone de Ionic
 import { 
   IonContent, 
   IonHeader, 
@@ -15,12 +16,10 @@ import {
   IonList, 
   IonItem, 
   IonLabel, 
-  IonCheckbox,
   IonFab,
   IonFabButton,
   IonModal,
   IonInput,
-  IonNote,
   IonSelect,
   IonSelectOption,
   IonTextarea,
@@ -28,7 +27,14 @@ import {
   IonCardContent, 
   IonPopover, 
   IonDatetime, 
-  IonDatetimeButton
+  IonDatetimeButton,
+  IonBadge,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle
 } from '@ionic/angular/standalone';
 
 import { addIcons } from 'ionicons';
@@ -37,12 +43,16 @@ import {
   cameraOutline, imageOutline, createOutline, documentTextOutline,
   colorPaletteOutline, trophyOutline, logOutOutline, closeOutline,
   analyticsOutline, medalOutline, starOutline, chevronBackOutline, 
-  chevronForwardOutline, listOutline, shareSocialOutline, trashOutline
+  chevronForwardOutline, listOutline, shareSocialOutline, trashOutline,
+  cartOutline, filmOutline, gameControllerOutline, cafeOutline, beerOutline, flameOutline
 } from 'ionicons/icons';
 
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Auth, signOut } from '@angular/fire/auth';
 import { HabitService } from '../../services/habit.service';
+import { GamificationService } from '../../services/gamification.service';
+import { NotificationService } from '../../services/notification.service';
+import { UserProfile, Reward } from '../../models/habit.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -53,7 +63,6 @@ import { HabitService } from '../../services/habit.service';
     CommonModule, 
     ReactiveFormsModule, 
     FormsModule,
-    // Componentes Standalone de Ionic
     IonContent, 
     IonHeader, 
     IonToolbar, 
@@ -64,12 +73,10 @@ import { HabitService } from '../../services/habit.service';
     IonList, 
     IonItem, 
     IonLabel, 
-    IonCheckbox,
     IonFab,
     IonFabButton,
     IonModal,
     IonInput,
-    IonNote,
     IonSelect,
     IonSelectOption,
     IonTextarea,
@@ -77,7 +84,14 @@ import { HabitService } from '../../services/habit.service';
     IonCardContent,
     IonPopover,
     IonDatetime,
-    IonDatetimeButton
+    IonDatetimeButton,
+    IonBadge,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle
   ]
 })
 export class DashboardPage implements OnInit {
@@ -86,6 +100,12 @@ export class DashboardPage implements OnInit {
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private habitService = inject(HabitService);
+  private gamificationService = inject(GamificationService);
+  private notificationService = inject(NotificationService);
+
+  // Perfil del Usuario y Tienda
+  userProfile: UserProfile | null = null;
+  rewardsList: Reward[] = [];
 
   // Control de Modales
   isFeedbackModalOpen = false;
@@ -95,6 +115,7 @@ export class DashboardPage implements OnInit {
   isSummaryModalOpen = false;
   isAchievementsModalOpen = false;
   isAllHabitsModalOpen = false; 
+  isShopModalOpen = false;
   
   selectedHabit: any = null;
   editingHabit: any = null;
@@ -111,7 +132,7 @@ export class DashboardPage implements OnInit {
   selectedDate = new Date(); 
   currentMonthName = new Date().toLocaleString('es-ES', { month: 'long' });
   
-  // Configuración de los 5 temas avanzados
+  // Configuración de temas
   currentThemeIndex = 0;
   themesList = ['', 'theme-vintage', 'theme-amethyst', 'theme-crimson', 'theme-emerald'];
   themeNames = ['Clásico (Azul)', 'Modo Oscuro', 'Vintage (Sepia)', 'Retro 80s', 'Emerald (Bosque)'];
@@ -119,7 +140,6 @@ export class DashboardPage implements OnInit {
   habits: any[] = [];
 
   constructor() {
-    // Registro explícito de íconos mapeados a sus nombres kebab-case
     addIcons({ 
       'person-circle-outline': personCircleOutline, 
       'time-outline': timeOutline, 
@@ -140,21 +160,44 @@ export class DashboardPage implements OnInit {
       'chevron-forward-outline': chevronForwardOutline, 
       'list-outline': listOutline, 
       'share-social-outline': shareSocialOutline, 
-      'trash-outline': trashOutline
+      'trash-outline': trashOutline,
+      'cart-outline': cartOutline,
+      'film-outline': filmOutline,
+      'game-controller-outline': gameControllerOutline,
+      'cafe-outline': cafeOutline,
+      'beer-outline': beerOutline,
+      'flame-outline': flameOutline
     });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.habitForm = this.fb.group({ 
-      name: ['', Validators.required], goal: ['', Validators.required], 
-      time: ['12:00', Validators.required], days: [[1, 2, 3, 4, 5], Validators.required] 
-    });
-    this.editForm = this.fb.group({ 
-      name: ['', Validators.required], goal: ['', Validators.required], 
-      time: ['12:00', Validators.required], days: [[1, 2, 3, 4, 5], Validators.required] 
+      name: ['', Validators.required], 
+      goal: ['', Validators.required], 
+      objective: [''],
+      time: ['12:00', Validators.required], 
+      days: [[1, 2, 3, 4, 5], Validators.required] 
     });
 
-    this.loadUserHabits();
+    this.editForm = this.fb.group({ 
+      name: ['', Validators.required], 
+      goal: ['', Validators.required], 
+      objective: [''],
+      time: ['12:00', Validators.required], 
+      days: [[1, 2, 3, 4, 5], Validators.required] 
+    });
+
+    await this.loadUserHabits();
+    await this.loadUserProfile();
+  }
+
+  async loadUserProfile() {
+    try {
+      this.userProfile = await this.gamificationService.getUserProfile();
+      this.rewardsList = this.gamificationService.defaultRewards;
+    } catch (e) {
+      console.error('Error cargando perfil de gamificación:', e);
+    }
   }
 
   async loadUserHabits() {
@@ -163,6 +206,14 @@ export class DashboardPage implements OnInit {
     } else {
       this.router.navigate(['/login'], { replaceUrl: true });
     }
+  }
+
+  triggerCelebration() {
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
   }
 
   get todayStr() {
@@ -208,6 +259,7 @@ export class DashboardPage implements OnInit {
 
   async deleteHabit(habitId: string) {
     await this.habitService.deleteHabit(habitId);
+    await this.notificationService.cancelNotification(habitId);
     await this.loadUserHabits();
   }
 
@@ -244,8 +296,6 @@ export class DashboardPage implements OnInit {
     if (newTheme) {
       document.body.classList.add(newTheme);
     }
-
-    console.log(`Estilo aplicado: ${this.themeNames[this.currentThemeIndex]}`);
   }
 
   openSummaryModal(habit: any) {
@@ -271,7 +321,11 @@ export class DashboardPage implements OnInit {
   openEditModal(habit: any) {
     this.editingHabit = habit;
     this.editForm.patchValue({ 
-      name: habit.name, goal: habit.goal, time: habit.time, days: habit.days 
+      name: habit.name, 
+      goal: habit.goal, 
+      objective: habit.objective || '', 
+      time: habit.time, 
+      days: habit.days 
     });
     this.isEditModalOpen = true;
   }
@@ -280,33 +334,47 @@ export class DashboardPage implements OnInit {
     if (this.editForm.valid && this.editingHabit) {
       const v = this.editForm.value;
       await this.habitService.updateHabit(this.editingHabit.id, {
-        name: v.name, goal: v.goal, time: v.time, days: v.days
+        name: v.name, goal: v.goal, objective: v.objective, time: v.time, days: v.days
       });
+
+      // Reprogramar notificación con el nuevo horario
+      await this.notificationService.scheduleHabitReminder(this.editingHabit.id, v.name, v.time);
+
       this.isEditModalOpen = false;
       await this.loadUserHabits();
     }
   }
 
-  async saveHabit() {
-    if (this.habitForm.valid) {
-      const user = this.auth.currentUser;
-      if (!user) return;
+ async saveHabit() {
+  if (this.habitForm.valid) {
+    const user = this.auth.currentUser;
+    if (!user) return;
 
-      const v = this.habitForm.value;
-      await this.habitService.addHabit({
-        name: v.name, 
-        goal: v.goal, 
-        time: v.time, 
-        days: v.days, 
-        history: {},
-        userId: user.uid
-      });
-      
-      this.habitForm.reset({ time: '12:00', days: [1, 2, 3, 4, 5] });
-      this.isAddModalOpen = false;
-      await this.loadUserHabits();
+    const v = this.habitForm.value;
+    
+    // 1. Guardar el hábito y recibir la referencia de Firestore
+    const docRef = await this.habitService.addHabit({
+      name: v.name, 
+      goal: v.goal, 
+      objective: v.objective || '',
+      time: v.time, 
+      days: v.days, 
+      history: {},
+      userId: user.uid
+    });
+    
+    // 2. Extraer el .id de la referencia del documento
+    const habitId = typeof docRef === 'string' ? docRef : docRef?.id;
+
+    if (habitId) {
+      await this.notificationService.scheduleHabitReminder(habitId, v.name, v.time);
     }
+
+    this.habitForm.reset({ time: '12:00', days: [1, 2, 3, 4, 5] });
+    this.isAddModalOpen = false;
+    await this.loadUserHabits();
   }
+}
 
   getMonthProgress(habit: any) {
     const now = new Date(); 
@@ -366,11 +434,40 @@ export class DashboardPage implements OnInit {
         this.selectedHabit.history = {};
       }
       this.selectedHabit.history[this.selectedDateStr] = { 
-        mood: moodLevel, note: this.sessionNote, photo: this.sessionPhoto, timestamp: new Date() 
+        completed: true,
+        mood: moodLevel, 
+        note: this.sessionNote, 
+        photo: this.sessionPhoto, 
+        timestamp: new Date() 
       };
+
       await this.habitService.updateHabit(this.selectedHabit.id, { history: this.selectedHabit.history });
+
+      // Cancelar la notificación local de hoy
+      await this.notificationService.cancelNotification(this.selectedHabit.id);
+
+      // Otorga XP (+50) y Monedas (+10)
+      const result = await this.gamificationService.awardHabitCompletion(50, 10);
+      this.userProfile = result.profile;
+
+      this.isFeedbackModalOpen = false;
+      this.triggerCelebration();
+
+      if (result.newLevel) {
+        alert(`🎉 ¡FELICIDADES! Subiste al Nivel ${result.profile.level}`);
+      }
+
       await this.loadUserHabits();
     }
-    this.isFeedbackModalOpen = false;
+  }
+
+  async buyReward(reward: Reward) {
+    try {
+      this.userProfile = await this.gamificationService.redeemReward(reward);
+      this.triggerCelebration();
+      alert(`🎉 ¡Canjeaste: ${reward.title}! Disfruta tu recompensa.`);
+    } catch (error: any) {
+      alert(error.message || 'No se pudo procesar el canje');
+    }
   }
 }

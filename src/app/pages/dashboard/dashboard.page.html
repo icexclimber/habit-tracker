@@ -5,7 +5,7 @@
         <ion-icon name="person-circle-outline" size="large"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Habits</ion-title>
+    <ion-title>Mis Hábitos</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -36,6 +36,20 @@
       </ion-content>
     </ng-template>
   </ion-popover>
+
+  <!-- Barra de Gamificación (Nivel, XP y Tienda) -->
+  @if (userProfile) {
+    <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 10px 16px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color);">
+      <div>
+        <ion-badge color="primary">Nivel {{ userProfile.level }}</ion-badge>
+        <span style="margin-left: 8px; font-weight: bold; color: var(--text-main);">{{ userProfile.xp }} XP</span>
+      </div>
+      <ion-button fill="solid" color="warning" size="small" shape="round" (click)="isShopModalOpen = true">
+        <ion-icon name="cart-outline" slot="start"></ion-icon>
+        🪙 {{ userProfile.coins }} Tienda
+      </ion-button>
+    </div>
+  }
 
   <!-- Selector Dinámico de Fechas -->
   <div class="date-selector">
@@ -108,6 +122,54 @@
   <!-- ============================================== -->
   <!-- ZONA DE MODALES                               -->
   <!-- ============================================== -->
+
+  <!-- MODAL: Tienda Virtual de Recompensas -->
+  <ion-modal [isOpen]="isShopModalOpen" (didDismiss)="isShopModalOpen = false">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar>
+          <ion-title>Tienda de Recompensas</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isShopModalOpen = false">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <div class="text-center ion-margin-bottom">
+          <h2 style="font-weight: bold; color: var(--text-main);">Tus Monedas: 🪙 {{ userProfile?.coins || 0 }}</h2>
+          <p style="color: var(--text-muted);">Completa hábitos para ganar más monedas y canjear premios reales.</p>
+        </div>
+
+        <ion-grid>
+          <ion-row>
+            @for (reward of rewardsList; track reward.id) {
+              <ion-col size="12" size-md="6">
+                <ion-card style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 12px;">
+                  <ion-card-header>
+                    <ion-card-title style="font-size: 1.1rem;">
+                      <ion-icon [name]="reward.icon" slot="start" style="margin-right: 8px;"></ion-icon>
+                      {{ reward.title }}
+                    </ion-card-title>
+                    <ion-card-subtitle style="color: var(--text-muted);">{{ reward.category }}</ion-card-subtitle>
+                  </ion-card-header>
+                  <ion-card-content style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: bold; font-size: 1.1rem; color: #f59e0b;">🪙 {{ reward.cost }}</span>
+                    <ion-button 
+                      size="small" 
+                      shape="round" 
+                      [disabled]="(userProfile?.coins || 0) < reward.cost"
+                      (click)="buyReward(reward)">
+                      Canjear
+                    </ion-button>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+            }
+          </ion-row>
+        </ion-grid>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 
   <!-- MODAL: Centro de Control (Todos los Hábitos) -->
   <ion-modal [isOpen]="isAllHabitsModalOpen" (didDismiss)="isAllHabitsModalOpen = false" [initialBreakpoint]="1" [breakpoints]="[0, 1]">
@@ -234,7 +296,10 @@
             <ion-input formControlName="name" label="¿Qué quieres lograr?" labelPlacement="floating"></ion-input>
           </ion-item>
           <ion-item fill="solid" shape="round" class="ion-margin-bottom">
-            <ion-input formControlName="goal" type="text" label="Meta diaria" labelPlacement="floating"></ion-input>
+            <ion-input formControlName="goal" type="text" label="Meta diaria (Ej: Leer 15 págs)" labelPlacement="floating"></ion-input>
+          </ion-item>
+          <ion-item fill="solid" shape="round" class="ion-margin-bottom">
+            <ion-input formControlName="objective" type="text" label="Objetivo General (Ej: 1 libro al mes)" labelPlacement="floating"></ion-input>
           </ion-item>
           <ion-item fill="solid" shape="round" class="ion-margin-bottom">
             <ion-select formControlName="days" label="Días" labelPlacement="floating" multiple="true" cancelText="Cancelar" okText="Aceptar">
@@ -275,6 +340,9 @@
           </ion-item>
           <ion-item fill="solid" shape="round" class="ion-margin-bottom">
             <ion-input formControlName="goal" type="text" label="Meta" labelPlacement="floating"></ion-input>
+          </ion-item>
+          <ion-item fill="solid" shape="round" class="ion-margin-bottom">
+            <ion-input formControlName="objective" type="text" label="Objetivo General" labelPlacement="floating"></ion-input>
           </ion-item>
           <ion-item fill="solid" shape="round" class="ion-margin-bottom">
             <ion-select formControlName="days" label="Días" labelPlacement="floating" multiple="true" cancelText="Cancelar" okText="Aceptar">
