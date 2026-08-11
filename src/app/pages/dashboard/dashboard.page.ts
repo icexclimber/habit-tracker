@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-// Componentes Standalone de Ionic
+// Componentes Standalone de Ionic completos
 import { 
   IonContent, 
   IonHeader, 
@@ -23,7 +23,12 @@ import {
   IonNote,
   IonSelect,
   IonSelectOption,
-  IonTextarea
+  IonTextarea,
+  IonCard, 
+  IonCardContent, 
+  IonPopover, 
+  IonDatetime, 
+  IonDatetimeButton
 } from '@ionic/angular/standalone';
 
 import { addIcons } from 'ionicons';
@@ -48,7 +53,7 @@ import { HabitService } from '../../services/habit.service';
     CommonModule, 
     ReactiveFormsModule, 
     FormsModule,
-    // Componentes Standalone de Ionic registrados explícitamente
+    // Componentes Standalone de Ionic
     IonContent, 
     IonHeader, 
     IonToolbar, 
@@ -67,7 +72,12 @@ import { HabitService } from '../../services/habit.service';
     IonNote,
     IonSelect,
     IonSelectOption,
-    IonTextarea
+    IonTextarea,
+    IonCard,
+    IonCardContent,
+    IonPopover,
+    IonDatetime,
+    IonDatetimeButton
   ]
 })
 export class DashboardPage implements OnInit {
@@ -155,7 +165,6 @@ export class DashboardPage implements OnInit {
     }
   }
 
-  // Obtiene la fecha local exacta evitando el desfase de zona horaria UTC
   get todayStr() {
     const now = new Date();
     const year = now.getFullYear();
@@ -224,7 +233,6 @@ export class DashboardPage implements OnInit {
 
   viewAchievements() { this.isAchievementsModalOpen = true; }
   
-  // Rotador avanzado de Temas y Estilos Globales
   changeTheme() {
     if (this.themesList[this.currentThemeIndex]) {
       document.body.classList.remove(this.themesList[this.currentThemeIndex]);
