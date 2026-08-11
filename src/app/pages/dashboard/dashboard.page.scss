@@ -1,111 +1,196 @@
-
 /* ==========================================
-   ESTILOS DEL DASHBOARD (Optimizado < 4kB)
+   ESTILOS DEL DASHBOARD (Optimizado)
    ========================================== */
 
-ion-content { --background: var(--bg-app) !important; }
+ion-content { 
+  --background: var(--bg-app) !important; 
+}
 
 ion-header ion-toolbar {
   --background: var(--bg-card) !important;
   --color: var(--text-main) !important;
-  ion-title { color: var(--text-main) !important; font-weight: 800; }
-   
+  ion-title { 
+    color: var(--text-main) !important; 
+    font-weight: 800; 
+  }
 }
 
-/* 1. Opción Principal: Usar las CSS Custom Properties de Ionic */
+/* 1. Corrección Global para botones de Ionic y Shadow DOM */
 ion-button {
-  --background: var(--ion-color-primary);
-  --color: #ffffff;
-  --opacity: 1;
-  --overflow: visible;
+  --background-focused: transparent;
+  --color-focused: var(--ion-color-primary);
   
-  /* Asegura que el botón no colapse ni tenga tamaño 0 */
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* Soporte de penetración a Shadow DOM */
+  &::part(native) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
 }
 
-/* 2. Opción Avanzada: Forzar visibilidad entrando al Shadow DOM vía ::part */
-ion-button::part(native) {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  opacity: 1 !important;
-  visibility: visible !important;
+/* 2. Ajuste específico para el Botón Checkmark de Hábitos */
+ion-button.check-btn, 
+ion-button[shape="round"] {
+  --padding-start: 0px;
+  --padding-end: 0px;
+  --padding-top: 0px;
+  --padding-bottom: 0px;
+  width: 50px;
+  height: 50px;
+  margin: 0;
+
+  ion-icon {
+    font-size: 42px;
+    display: block;
+  }
 }
 
+/* 3. Popover del Menú de Perfil */
 ion-popover {
   --background: var(--bg-card) !important;
   --color: var(--text-main) !important;
+  
   ion-content { --background: var(--bg-card) !important; } 
   ion-list { background: var(--bg-app) !important; color: var(--text-main) !important; }
+  
   ion-item {
     --background: var(--bg-card) !important;
     --color: var(--text-main) !important;
     --border-color: var(--border-color) !important;
-    background: var(--bg-card) !important; color: var(--text-main) !important;
+    background: var(--bg-card) !important; 
+    color: var(--text-main) !important;
   }
+  
   ion-label { color: var(--text-main) !important; }
+  
   ion-icon {
     color: var(--text-muted) !important;
     &[color="danger"] { color: var(--ion-color-danger, #ff4961) !important; }
   }
 }
 
+/* 4. Entradas de Texto e Inputs */
 ion-textarea, ion-input {
   --background: var(--bg-card) !important;
   --color: var(--text-main) !important;
   color: var(--text-main) !important;
 }
 
-ion-modal ion-item {
-  --background: var(--bg-card) !important;
-  --color: var(--text-main) !important;
-  --border-color: var(--border-color) !important;
-  color: var(--text-main) !important;
-  ion-textarea, ion-input, ion-select { color: var(--text-main) !important; }
-  ion-label { color: var(--text-muted) !important; }
+/* 5. Modales (General) */
+ion-modal {
+  ion-item {
+    --background: var(--bg-card) !important;
+    --color: var(--text-main) !important;
+    --border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+    
+    ion-textarea, ion-input, ion-select { color: var(--text-main) !important; }
+    ion-label { color: var(--text-muted) !important; }
+  }
+
+  ion-segment {
+    background: var(--bg-app);
+    ion-segment-button {
+      --color: var(--text-muted);
+      --color-checked: var(--ion-color-primary);
+    }
+  }
 }
 
 .section-title {
   color: var(--text-main) !important;
-  font-size: 22px; font-weight: 800; margin: 10px 0 20px 10px;
+  font-size: 22px; 
+  font-weight: 800; 
+  margin: 10px 0 20px 10px;
 }
 
+/* 6. Tarjetas de Hábitos */
 .habit-card {
-  border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  margin: 0 0 20px 0; background: var(--bg-card) !important; color: var(--text-main) !important;
+  border-radius: 20px; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  margin: 0 0 20px 0; 
+  background: var(--bg-card) !important; 
+  color: var(--text-main) !important;
+  
   ion-card-content { padding: 20px; }
-  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+  
+  .card-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 15px; 
+  }
+  
   .habit-info {
-    cursor: pointer; width: 100%;
+    cursor: pointer; 
+    flex: 1;
+    
     .clickable-title {
-      display: flex; align-items: center; gap: 6px;
+      display: flex; 
+      align-items: center; 
+      gap: 6px;
+      
       h2 { font-weight: 700; font-size: 18px; color: var(--text-main) !important; margin: 0; }
       ion-icon { font-size: 16px; color: var(--ion-color-primary); }
     }
-    p { margin: 6px 0 0 0; color: var(--text-muted) !important; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+    
+    p { 
+      margin: 6px 0 0 0; 
+      color: var(--text-muted) !important; 
+      font-size: 14px; 
+      display: flex; 
+      align-items: center; 
+      gap: 5px; 
+    }
   }
+  
   .check-btn {
-    --color: var(--text-muted); margin: 0; height: 50px; width: 50px;
+    --color: var(--text-muted); 
+    margin: 0; 
+    height: 50px; 
+    width: 50px;
+    
     &.is-completed { --color: var(--ion-color-success); }
   }
 }
 
+/* 7. Mapa Mensual de Calor (Heatmap) */
 .month-heatmap-container {
-  margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color) !important;
-  width: 100%; max-width: 280px; 
+  margin-top: 15px; 
+  padding-top: 15px; 
+  border-top: 1px solid var(--border-color) !important;
+  width: 100%; 
+  max-width: 280px; 
+  
   .month-header {
-    display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; 
-    color: var(--text-muted) !important; margin-bottom: 8px; text-transform: capitalize;
+    display: flex; 
+    justify-content: space-between; 
+    font-size: 11px; 
+    font-weight: bold; 
+    color: var(--text-muted) !important; 
+    margin-bottom: 8px; 
+    text-transform: capitalize;
   }
+  
   .month-grid {
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 2%;
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    gap: 2%;
+    
     .month-day-box {
-      aspect-ratio: 1; border-radius: 4px; background: var(--border-color); 
-      display: flex; align-items: center; justify-content: center;
-      font-size: clamp(8px, 2.5vw, 11px); font-weight: 600; color: var(--text-muted); cursor: pointer;
+      aspect-ratio: 1; 
+      border-radius: 4px; 
+      background: var(--border-color); 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      font-size: clamp(8px, 2.5vw, 11px); 
+      font-weight: 600; 
+      color: var(--text-muted); 
+      cursor: pointer;
+      
       &.not-scheduled { background: transparent; border: 1px dashed var(--border-color); color: var(--text-muted); opacity: 0.4; }
       &.today { border: 2px solid var(--ion-color-primary); }
       &.is-selected { border: 2px solid var(--ion-color-primary); transform: scale(1.1); box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 2; }
@@ -118,32 +203,79 @@ ion-modal ion-item {
   }
 }
 
+/* 8. Estilos Generales y Utilidades */
 .date-selector {
-  display: flex; justify-content: space-between; align-items: center; margin: 10px 0 20px 0; padding: 0 5px;
-  .section-title { margin: 0; text-transform: capitalize; font-size: 20px; font-weight: 800; color: var(--text-main); text-align: center; flex-grow: 1; }
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin: 10px 0 20px 0; 
+  padding: 0 5px;
+  
+  .section-title { 
+    margin: 0; 
+    text-transform: capitalize; 
+    font-size: 20px; 
+    font-weight: 800; 
+    color: var(--text-main); 
+    text-align: center; 
+    flex-grow: 1; 
+  }
 }
 
 .habit-list-item {
-  --padding-start: 0; margin-bottom: 10px;
+  --padding-start: 0; 
+  margin-bottom: 10px;
   h2 { font-weight: bold; color: var(--text-main); margin-bottom: 5px; }
   p { font-size: 13px; color: var(--text-muted); }
 }
 
 .summary-stats {
-  display: flex; justify-content: space-around; text-align: center; margin: 20px 0;
+  display: flex; 
+  justify-content: space-around; 
+  text-align: center; 
+  margin: 20px 0;
+  
   .stat-box {
-    background: var(--bg-card); padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 30%;
+    background: var(--bg-card); 
+    padding: 15px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+    width: 30%;
+    
     h4 { font-size: 24px; font-weight: bold; color: var(--ion-color-primary); margin: 0; }
     p { font-size: 11px; color: var(--text-muted); margin: 5px 0 0 0; font-weight: bold; text-transform: uppercase; }
   }
 }
 
-.detail-section { margin-top: 20px; .photo-buttons { display: flex; gap: 10px; margin-bottom: 10px; } .preview-img { width: 100%; max-height: 180px; object-fit: cover; border-radius: 12px; margin-top: 10px; } }
-.log-detail-card { box-shadow: none; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); border-radius: 12px; .emoji-huge { font-size: 50px; text-align: center; margin: 10px 0; } }
+.detail-section { 
+  margin-top: 20px; 
+  .photo-buttons { display: flex; gap: 10px; margin-bottom: 10px; } 
+  .preview-img { width: 100%; max-height: 180px; object-fit: cover; border-radius: 12px; margin-top: 10px; } 
+}
+
+.log-detail-card { 
+  box-shadow: none; 
+  border: 1px solid var(--border-color); 
+  background: var(--bg-card); 
+  color: var(--text-main); 
+  border-radius: 12px; 
+  .emoji-huge { font-size: 50px; text-align: center; margin: 10px 0; } 
+}
+
 .text-center { text-align: center; }
 .feedback-title { font-weight: bold; color: var(--ion-color-primary); margin-top: 10px; }
+
 .emoji-selector { 
-  display: flex; justify-content: space-around; margin: 20px 0; 
-  .emoji-btn { background: transparent; font-size: 36px; border: none; transition: transform 0.2s; cursor: pointer; } 
+  display: flex; 
+  justify-content: space-around; 
+  margin: 20px 0; 
+  
+  .emoji-btn { 
+    background: transparent; 
+    font-size: 36px; 
+    border: none; 
+    transition: transform 0.2s; 
+    cursor: pointer; 
+  } 
   .emoji-btn:active { transform: scale(1.2); } 
 }
