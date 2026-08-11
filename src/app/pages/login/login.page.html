@@ -1,38 +1,44 @@
 <ion-content class="ion-padding">
   <div class="login-wrapper">
-    
+
     <!-- Encabezado -->
     <div class="header-section">
       <!-- Aquí puedes poner el logo de tu app después -->
-      <div class="logo-placeholder">🎯</div> 
+      <div class="logo-placeholder">🎯</div>
       <h1>Bienvenido</h1>
       <p>Tus metas te están esperando.</p>
     </div>
 
     <!-- Formulario Reactivo -->
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      
+
       <ion-item fill="solid" class="custom-input ion-margin-bottom" shape="round">
         <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
         <ion-input type="email" label="Correo Electrónico" labelPlacement="floating" formControlName="email" placeholder="ejemplo@correo.com"></ion-input>
       </ion-item>
       <!-- Mensaje de error (solo se muestra si es inválido y fue tocado) -->
-      <ion-note color="danger" class="error-msg" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-        Ingresa un correo electrónico válido.
-      </ion-note>
+      @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+        <ion-note color="danger" class="error-msg">
+          Ingresa un correo electrónico válido.
+        </ion-note>
+      }
 
       <ion-item fill="solid" class="custom-input" shape="round">
         <ion-icon name="lock-closed-outline" slot="start" color="medium"></ion-icon>
         <ion-input type="password" label="Contraseña" labelPlacement="floating" formControlName="password" placeholder="••••••••"></ion-input>
       </ion-item>
-      <ion-note color="danger" class="error-msg" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-        La contraseña debe tener al menos 6 caracteres.
-      </ion-note>
+      @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+        <ion-note color="danger" class="error-msg">
+          La contraseña debe tener al menos 6 caracteres.
+        </ion-note>
+      }
 
       <!-- Se oculta si el usuario está creando una cuenta -->
-      <div class="forgot-password" *ngIf="isLoginMode">
-        <a href="#">¿Olvidaste tu contraseña?</a>
-      </div>
+      @if (isLoginMode) {
+        <div class="forgot-password">
+          <a href="#">¿Olvidaste tu contraseña?</a>
+        </div>
+      }
 
       <ion-button expand="block" shape="round" type="submit" class="main-button ion-margin-top">
         {{ isLoginMode ? 'Iniciar Sesión' : 'Crear Cuenta' }}

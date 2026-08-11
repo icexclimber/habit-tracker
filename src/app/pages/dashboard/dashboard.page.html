@@ -36,7 +36,7 @@
 </ion-popover>
 
 <ion-content class="ion-padding">
-  
+
   <!-- Selector Dinámico de Fechas -->
   <div class="date-selector">
     <ion-button fill="clear" color="dark" (click)="prevDay()">
@@ -47,53 +47,55 @@
       <ion-icon name="chevron-forward-outline"></ion-icon>
     </ion-button>
   </div>
-  
+
   <!-- Lista de Hábitos Filtrados por Día -->
-  <ion-card class="habit-card" *ngFor="let habit of filteredHabits">
-    <ion-card-content>
-      
-      <div class="card-header">
-        <div class="habit-info" (click)="openSummaryModal(habit)">
-          <div class="clickable-title">
-            <h2>{{ habit.name }}</h2>
-            <ion-icon name="analytics-outline"></ion-icon>
+  @for (habit of filteredHabits; track habit) {
+    <ion-card class="habit-card">
+      <ion-card-content>
+        <div class="card-header">
+          <div class="habit-info" (click)="openSummaryModal(habit)">
+            <div class="clickable-title">
+              <h2>{{ habit.name }}</h2>
+              <ion-icon name="analytics-outline"></ion-icon>
+            </div>
+            <p><ion-icon name="time-outline"></ion-icon> {{ habit.time }} | Meta: {{ habit.goal }}</p>
           </div>
-          <p><ion-icon name="time-outline"></ion-icon> {{ habit.time }} | Meta: {{ habit.goal }}</p>
+          <!-- Botón Completar (Validando la fecha seleccionada) -->
+          <ion-button shape="circle" fill="clear" class="check-btn"
+            [class.is-completed]="!!habit.history?.[selectedDateStr]"
+            (click)="openFeedbackModal(habit)">
+            <ion-icon name="checkmark-circle-outline" size="large"></ion-icon>
+          </ion-button>
         </div>
-        
-        <!-- Botón Completar (Validando la fecha seleccionada) -->
-        <ion-button shape="circle" fill="clear" class="check-btn" 
-                    [class.is-completed]="!!habit.history?.[selectedDateStr]" 
-                    (click)="openFeedbackModal(habit)">
-          <ion-icon name="checkmark-circle-outline" size="large"></ion-icon>
-        </ion-button>
-      </div>
-
-      <!-- Mapa Mensual Responsivo -->
-      <div class="month-heatmap-container">
-        <div class="month-header">
-          <span>{{ currentMonthName }}</span>
-        </div>
-        <div class="month-grid">
-          <div class="month-day-box" *ngFor="let day of getMonthProgress(habit)"
-               [class.not-scheduled]="!day.scheduled"
-               [class.today]="day.isToday"
-               [class.is-selected]="day.isSelected"
-               [ngClass]="day.mood ? 'mood-' + day.mood : ''"
-               (click)="openLogDetail(day)">
-            {{ day.dayNumber }}
+        <!-- Mapa Mensual Responsivo -->
+        <div class="month-heatmap-container">
+          <div class="month-header">
+            <span>{{ currentMonthName }}</span>
+          </div>
+          <div class="month-grid">
+            @for (day of getMonthProgress(habit); track day) {
+              <div class="month-day-box"
+                [class.not-scheduled]="!day.scheduled"
+                [class.today]="day.isToday"
+                [class.is-selected]="day.isSelected"
+                [ngClass]="day.mood ? 'mood-' + day.mood : ''"
+                (click)="openLogDetail(day)">
+                {{ day.dayNumber }}
+              </div>
+            }
           </div>
         </div>
-      </div>
-
-    </ion-card-content>
-  </ion-card>
+      </ion-card-content>
+    </ion-card>
+  }
 
   <!-- Estado vacío -->
-  <div *ngIf="filteredHabits.length === 0" class="text-center" style="margin-top: 40px; color: var(--text-muted);">
-    <p>No tienes actividades programadas para este día.</p>
-    <ion-button fill="clear" (click)="isAddModalOpen = true">Agregar un hábito nuevo</ion-button>
-  </div>
+  @if (filteredHabits.length === 0) {
+    <div class="text-center" style="margin-top: 40px; color: var(--text-muted);">
+      <p>No tienes actividades programadas para este día.</p>
+      <ion-button fill="clear" (click)="isAddModalOpen = true">Agregar un hábito nuevo</ion-button>
+    </div>
+  }
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button (click)="isAddModalOpen = true">
@@ -104,7 +106,7 @@
   <!-- ============================================== -->
   <!-- ZONA DE MODALES                                -->
   <!-- ============================================== -->
-  
+
   <!-- MODAL: Centro de Control (Todos los Hábitos) -->
   <ion-modal [isOpen]="isAllHabitsModalOpen" (didDismiss)="isAllHabitsModalOpen = false" [initialBreakpoint]="1" [breakpoints]="[0, 1]">
     <ng-template>
@@ -118,21 +120,23 @@
       </ion-header>
       <ion-content class="ion-padding">
         <ion-list lines="full">
-          <ion-item class="habit-list-item" *ngFor="let h of habits">
-            <ion-label>
-              <h2>{{ h.name }}</h2>
-              <p>{{ h.time }} | Días prog.: {{ h.days?.length || 0 }}</p>
-            </ion-label>
-            <ion-button fill="clear" color="dark" (click)="openEditModal(h)">
-              <ion-icon name="create-outline"></ion-icon>
-            </ion-button>
-            <ion-button fill="clear" color="primary" (click)="shareHabit(h)">
-              <ion-icon name="share-social-outline"></ion-icon>
-            </ion-button>
-            <ion-button fill="clear" color="danger" (click)="deleteHabit(h.id)">
-              <ion-icon name="trash-outline"></ion-icon>
-            </ion-button>
-          </ion-item>
+          @for (h of habits; track h) {
+            <ion-item class="habit-list-item">
+              <ion-label>
+                <h2>{{ h.name }}</h2>
+                <p>{{ h.time }} | Días prog.: {{ h.days?.length || 0 }}</p>
+              </ion-label>
+              <ion-button fill="clear" color="dark" (click)="openEditModal(h)">
+                <ion-icon name="create-outline"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" color="primary" (click)="shareHabit(h)">
+                <ion-icon name="share-social-outline"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" color="danger" (click)="deleteHabit(h.id)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </ion-button>
+            </ion-item>
+          }
         </ion-list>
       </ion-content>
     </ng-template>
@@ -152,30 +156,32 @@
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
-      <ion-content class="ion-padding" *ngIf="selectedHabit">
-        <div class="text-center ion-margin-top">
-          <ion-icon name="analytics-outline" style="font-size: 60px; color: var(--ion-color-primary)"></ion-icon>
-          <h2 style="font-weight: bold; color: var(--text-main);">{{ selectedHabit.name }}</h2>
-          <p style="color: var(--text-muted);">Análisis de cumplimiento</p>
-        </div>
-        <div class="summary-stats">
-          <div class="stat-box">
-            <h4>{{ summaryStats?.totalDays }}</h4><p>Días Logrados</p>
+      @if (selectedHabit) {
+        <ion-content class="ion-padding">
+          <div class="text-center ion-margin-top">
+            <ion-icon name="analytics-outline" style="font-size: 60px; color: var(--ion-color-primary)"></ion-icon>
+            <h2 style="font-weight: bold; color: var(--text-main);">{{ selectedHabit.name }}</h2>
+            <p style="color: var(--text-muted);">Análisis de cumplimiento</p>
           </div>
-          <div class="stat-box">
-            <h4>{{ summaryStats?.adherence }}</h4><p>Adherencia</p>
+          <div class="summary-stats">
+            <div class="stat-box">
+              <h4>{{ summaryStats?.totalDays }}</h4><p>Días Logrados</p>
+            </div>
+            <div class="stat-box">
+              <h4>{{ summaryStats?.adherence }}</h4><p>Adherencia</p>
+            </div>
+            <div class="stat-box">
+              <h4>{{ summaryStats?.avgMood }}</h4><p>Ánimo Prom.</p>
+            </div>
           </div>
-          <div class="stat-box">
-            <h4>{{ summaryStats?.avgMood }}</h4><p>Ánimo Prom.</p>
-          </div>
-        </div>
-        <ion-card style="box-shadow: none; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); border-radius: 12px; margin-top: 20px;">
-          <ion-card-content>
-            <h3 style="font-weight: bold;"><ion-icon name="trophy-outline"></ion-icon> Sigue así</h3>
-            <p style="color: var(--text-muted);">Estás construyendo disciplina. Revisa este panel periódicamente.</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-content>
+          <ion-card style="box-shadow: none; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); border-radius: 12px; margin-top: 20px;">
+            <ion-card-content>
+              <h3 style="font-weight: bold;"><ion-icon name="trophy-outline"></ion-icon> Sigue así</h3>
+              <p style="color: var(--text-muted);">Estás construyendo disciplina. Revisa este panel periódicamente.</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-content>
+      }
     </ng-template>
   </ion-modal>
 
@@ -295,7 +301,7 @@
       <ion-content class="ion-padding text-center">
         <h2 class="feedback-title">¡Hábito Completado!</h2>
         <p style="color: var(--text-muted);">¿Cómo te sentiste esta sesión?</p>
-        
+
         <div class="emoji-selector">
           <button class="emoji-btn" (click)="saveLog(1)">😫</button>
           <button class="emoji-btn" (click)="saveLog(2)">😕</button>
@@ -303,12 +309,12 @@
           <button class="emoji-btn" (click)="saveLog(4)">🙂</button>
           <button class="emoji-btn" (click)="saveLog(5)">🤩</button>
         </div>
-        
+
         <div class="detail-section">
           <ion-item fill="solid" shape="round" class="ion-margin-bottom">
             <ion-textarea label="Notas de la sesión" labelPlacement="floating" [(ngModel)]="sessionNote"></ion-textarea>
           </ion-item>
-          
+
           <div class="photo-buttons">
             <ion-button expand="block" fill="outline" color="dark" (click)="takePhoto('camera')">
               <ion-icon name="camera-outline" slot="start"></ion-icon> Cámara
@@ -317,8 +323,10 @@
               <ion-icon name="image-outline" slot="start"></ion-icon> Galería
             </ion-button>
           </div>
-          
-          <img *ngIf="sessionPhoto" [src]="sessionPhoto" class="preview-img" />
+
+          @if (sessionPhoto) {
+            <img [src]="sessionPhoto" class="preview-img" />
+          }
         </div>
       </ion-content>
     </ng-template>
@@ -338,23 +346,41 @@
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding">
-        <ion-card class="log-detail-card" *ngIf="selectedLogDetail">
-          <ion-card-content>
-            <div class="emoji-huge">
-              <span *ngIf="selectedLogDetail.mood === 1">😫</span>
-              <span *ngIf="selectedLogDetail.mood === 2">😕</span>
-              <span *ngIf="selectedLogDetail.mood === 3">😐</span>
-              <span *ngIf="selectedLogDetail.mood === 4">🙂</span>
-              <span *ngIf="selectedLogDetail.mood === 5">🤩</span>
-            </div>
-            
-            <h3 *ngIf="selectedLogDetail.note">Notas:</h3>
-            <p *ngIf="selectedLogDetail.note">{{ selectedLogDetail.note }}</p>
-            <p *ngIf="!selectedLogDetail.note" style="color: var(--text-muted); font-style: italic;">Sin notas.</p>
-            
-            <img *ngIf="selectedLogDetail.photo" [src]="selectedLogDetail.photo" class="preview-img" style="margin-top: 15px;" />
-          </ion-card-content>
-        </ion-card>
+        @if (selectedLogDetail) {
+          <ion-card class="log-detail-card">
+            <ion-card-content>
+              <div class="emoji-huge">
+                @if (selectedLogDetail.mood === 1) {
+                  <span>😫</span>
+                }
+                @if (selectedLogDetail.mood === 2) {
+                  <span>😕</span>
+                }
+                @if (selectedLogDetail.mood === 3) {
+                  <span>😐</span>
+                }
+                @if (selectedLogDetail.mood === 4) {
+                  <span>🙂</span>
+                }
+                @if (selectedLogDetail.mood === 5) {
+                  <span>🤩</span>
+                }
+              </div>
+              @if (selectedLogDetail.note) {
+                <h3>Notas:</h3>
+              }
+              @if (selectedLogDetail.note) {
+                <p>{{ selectedLogDetail.note }}</p>
+              }
+              @if (!selectedLogDetail.note) {
+                <p style="color: var(--text-muted); font-style: italic;">Sin notas.</p>
+              }
+              @if (selectedLogDetail.photo) {
+                <img [src]="selectedLogDetail.photo" class="preview-img" style="margin-top: 15px;" />
+              }
+            </ion-card-content>
+          </ion-card>
+        }
       </ion-content>
     </ng-template>
   </ion-modal>

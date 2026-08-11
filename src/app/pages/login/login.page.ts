@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, EnvironmentInjector, runInInjectionContext } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
@@ -14,7 +14,7 @@ import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signI
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, ReactiveFormsModule]
+  imports: [IonicModule, ReactiveFormsModule]
 })
 export class LoginPage implements OnInit {
   loginForm!: FormGroup;
