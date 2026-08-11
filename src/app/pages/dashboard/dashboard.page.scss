@@ -9,7 +9,30 @@ ion-header ion-toolbar {
   --background: var(--bg-card) !important;
   --color: var(--text-main) !important;
   ion-title { color: var(--text-main) !important; font-weight: 800; }
-  ion-button { --color: var(--text-main) !important; }
+   
+}
+
+/* 1. Opción Principal: Usar las CSS Custom Properties de Ionic */
+ion-button {
+  --background: var(--ion-color-primary);
+  --color: #ffffff;
+  --opacity: 1;
+  --overflow: visible;
+  
+  /* Asegura que el botón no colapse ni tenga tamaño 0 */
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 2. Opción Avanzada: Forzar visibilidad entrando al Shadow DOM vía ::part */
+ion-button::part(native) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 ion-popover {
