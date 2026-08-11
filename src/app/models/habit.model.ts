@@ -10,20 +10,22 @@ export interface Habit {
   id?: string;
   userId: string;
   name: string;
-  goal: string;        // Meta diaria (ej: "Leer 15 páginas")
-  objective: string;   // Objetivo general (ej: "Terminar 1 libro al mes")
-  time: string;        // Hora programada "14:30"
-  days: number[];      // Días programados [0, 1, 2, ...]
+  goal: string;         // Meta diaria (ej: "Leer 15 páginas")
+  objective?: string;   // Objetivo general (ej: "Terminar 1 libro al mes")
+  time: string;         // Hora programada "14:30"
+  days: number[];       // Días programados [0, 1, 2, ...]
 
-  // Gamificación
-  xpReward: number;     // XP que otorga (por defecto: 50)
-  coinsReward: number;  // Monedas que otorga (por defecto: 10)
-  masteryLevel: number; // Nivel de maestría (1 a 5)
+  // Gamificación e Impacto
+  xpReward?: number;     // XP que otorga (por defecto: 50)
+  coinsReward?: number;  // Monedas que otorga (por defecto: 10)
+  masteryLevel?: number; // Nivel de maestría (1 a 5)
 
-  // Hábito Grupal
+  // Módulo Social y Grupal
   isGroup?: boolean;
-  partnerId?: string;   // UID del amigo vinculado
+  partnerId?: string;    // UID del amigo vinculado
+  partnerName?: string;  // Nombre del amigo para visualización rápida
 
+  // Historial de registros
   history: { [dateStr: string]: HabitLog };
 }
 
@@ -34,8 +36,8 @@ export interface UserProfile {
   xp: number;
   level: number;
   coins: number;
-  badges: string[];     // IDs de logros desbloqueados
-  friends: string[];    // UIDs de amigos
+  badges: string[];      // IDs de logros desbloqueados
+  friends: string[];     // UIDs de amigos
 }
 
 export interface Reward {

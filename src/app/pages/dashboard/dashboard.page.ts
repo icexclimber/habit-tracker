@@ -34,7 +34,9 @@ import {
   IonCol,
   IonCardHeader,
   IonCardTitle,
-  IonCardSubtitle
+  IonCardSubtitle,
+  IonSegment,
+  IonSegmentButton
 } from '@ionic/angular/standalone';
 
 import { addIcons } from 'ionicons';
@@ -44,7 +46,8 @@ import {
   colorPaletteOutline, trophyOutline, logOutOutline, closeOutline,
   analyticsOutline, medalOutline, starOutline, chevronBackOutline, 
   chevronForwardOutline, listOutline, shareSocialOutline, trashOutline,
-  cartOutline, filmOutline, gameControllerOutline, cafeOutline, beerOutline, flameOutline
+  cartOutline, filmOutline, gameControllerOutline, cafeOutline, beerOutline, flameOutline,
+  peopleOutline, notificationsOutline
 } from 'ionicons/icons';
 
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
@@ -52,6 +55,7 @@ import { Auth, signOut } from '@angular/fire/auth';
 import { HabitService } from '../../services/habit.service';
 import { GamificationService } from '../../services/gamification.service';
 import { NotificationService } from '../../services/notification.service';
+import { SocialService } from '../../services/social.service';
 import { UserProfile, Reward } from '../../models/habit.model';
 
 @Component({
@@ -91,7 +95,9 @@ import { UserProfile, Reward } from '../../models/habit.model';
     IonCol,
     IonCardHeader,
     IonCardTitle,
-    IonCardSubtitle
+    IonCardSubtitle,
+    IonSegment,
+    IonSegmentButton
   ]
 })
 export class DashboardPage implements OnInit {
@@ -102,10 +108,16 @@ export class DashboardPage implements OnInit {
   private habitService = inject(HabitService);
   private gamificationService = inject(GamificationService);
   private notificationService = inject(NotificationService);
+  private socialService = inject(SocialService);
 
   // Perfil del Usuario y Tienda
   userProfile: UserProfile | null = null;
   rewardsList: Reward[] = [];
+
+  // Módulo Social y Leaderboard
+  leaderboardXp: UserProfile[] = [];
+  leaderboardCoins: UserProfile[] = [];
+  socialSegment: 'xp' | 'coins' = 'xp';
 
   // Control de Modales
   isFeedbackModalOpen = false;
@@ -116,6 +128,7 @@ export class DashboardPage implements OnInit {
   isAchievementsModalOpen = false;
   isAllHabitsModalOpen = false; 
   isShopModalOpen = false;
+  isSocialModalOpen = false;
   
   selectedHabit: any = null;
   editingHabit: any = null;
@@ -166,7 +179,9 @@ export class DashboardPage implements OnInit {
       'game-controller-outline': gameControllerOutline,
       'cafe-outline': cafeOutline,
       'beer-outline': beerOutline,
-      'flame-outline': flameOutline
+      'flame-outline': flameOutline,
+      'people-outline': peopleOutline,
+      'notifications-outline': notificationsOutline
     });
   }
 
@@ -214,6 +229,17 @@ export class DashboardPage implements OnInit {
       spread: 70,
       origin: { y: 0.6 }
     });
+  }
+
+  async openSocialModal() {
+    this.isSocialModalOpen = true;
+    this.leaderboardXp = await this.socialService.getLeaderboardByXp();
+    this.leaderboardCoins = await this.socialService.getLeaderboardByCoins();
+  }
+
+  async sendNudge(partnerUid: string, habitName: string) {
+    await this.socialService.sendNudge(partnerUid, habitName);
+    alert('🔔 ¡Zumbido motivacional enviado a tu amigo!');
   }
 
   get todayStr() {
@@ -337,7 +363,6 @@ export class DashboardPage implements OnInit {
         name: v.name, goal: v.goal, objective: v.objective, time: v.time, days: v.days
       });
 
-      // Reprogramar notificación con el nuevo horario
       await this.notificationService.scheduleHabitReminder(this.editingHabit.id, v.name, v.time);
 
       this.isEditModalOpen = false;
@@ -345,36 +370,33 @@ export class DashboardPage implements OnInit {
     }
   }
 
- async saveHabit() {
-  if (this.habitForm.valid) {
-    const user = this.auth.currentUser;
-    if (!user) return;
+  async saveHabit() {
+    if (this.habitForm.valid) {
+      const user = this.auth.currentUser;
+      if (!user) return;
 
-    const v = this.habitForm.value;
-    
-    // 1. Guardar el hábito y recibir la referencia de Firestore
-    const docRef = await this.habitService.addHabit({
-      name: v.name, 
-      goal: v.goal, 
-      objective: v.objective || '',
-      time: v.time, 
-      days: v.days, 
-      history: {},
-      userId: user.uid
-    });
-    
-    // 2. Extraer el .id de la referencia del documento
-    const habitId = typeof docRef === 'string' ? docRef : docRef?.id;
+      const v = this.habitForm.value;
+      const docRef = await this.habitService.addHabit({
+        name: v.name, 
+        goal: v.goal, 
+        objective: v.objective || '',
+        time: v.time, 
+        days: v.days, 
+        history: {},
+        userId: user.uid
+      });
+      
+      const habitId = typeof docRef === 'string' ? docRef : docRef?.id;
 
-    if (habitId) {
-      await this.notificationService.scheduleHabitReminder(habitId, v.name, v.time);
+      if (habitId) {
+        await this.notificationService.scheduleHabitReminder(habitId, v.name, v.time);
+      }
+
+      this.habitForm.reset({ time: '12:00', days: [1, 2, 3, 4, 5] });
+      this.isAddModalOpen = false;
+      await this.loadUserHabits();
     }
-
-    this.habitForm.reset({ time: '12:00', days: [1, 2, 3, 4, 5] });
-    this.isAddModalOpen = false;
-    await this.loadUserHabits();
   }
-}
 
   getMonthProgress(habit: any) {
     const now = new Date(); 
@@ -443,10 +465,8 @@ export class DashboardPage implements OnInit {
 
       await this.habitService.updateHabit(this.selectedHabit.id, { history: this.selectedHabit.history });
 
-      // Cancelar la notificación local de hoy
       await this.notificationService.cancelNotification(this.selectedHabit.id);
 
-      // Otorga XP (+50) y Monedas (+10)
       const result = await this.gamificationService.awardHabitCompletion(50, 10);
       this.userProfile = result.profile;
 

@@ -37,17 +37,21 @@
     </ng-template>
   </ion-popover>
 
-  <!-- Barra de Gamificación (Nivel, XP y Tienda) -->
+  <!-- Barra de Gamificación (Nivel, XP, Tienda y Ranking Social) -->
   @if (userProfile) {
     <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 10px 16px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color);">
       <div>
         <ion-badge color="primary">Nivel {{ userProfile.level }}</ion-badge>
         <span style="margin-left: 8px; font-weight: bold; color: var(--text-main);">{{ userProfile.xp }} XP</span>
       </div>
-      <ion-button fill="solid" color="warning" size="small" shape="round" (click)="isShopModalOpen = true">
-        <ion-icon name="cart-outline" slot="start"></ion-icon>
-        🪙 {{ userProfile.coins }} Tienda
-      </ion-button>
+      <div>
+        <ion-button fill="outline" color="tertiary" size="small" shape="round" style="margin-right: 6px;" (click)="openSocialModal()">
+          <ion-icon name="people-outline" slot="start"></ion-icon> Ranking
+        </ion-button>
+        <ion-button fill="solid" color="warning" size="small" shape="round" (click)="isShopModalOpen = true">
+          <ion-icon name="cart-outline" slot="start"></ion-icon> 🪙 {{ userProfile.coins }}
+        </ion-button>
+      </div>
     </div>
   }
 
@@ -120,8 +124,61 @@
   </ion-fab>
 
   <!-- ============================================== -->
-  <!-- ZONA DE MODALES                               -->
+  <!-- MODALES DE LA APLICACIÓN                       -->
   <!-- ============================================== -->
+
+  <!-- MODAL: Leaderboard & Comunidad -->
+  <ion-modal [isOpen]="isSocialModalOpen" (didDismiss)="isSocialModalOpen = false">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar>
+          <ion-title>Comunidad & Clasificación</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isSocialModalOpen = false">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+        <ion-toolbar>
+          <ion-segment [(ngModel)]="socialSegment">
+            <ion-segment-button value="xp"><ion-label>Ranking XP</ion-label></ion-segment-button>
+            <ion-segment-button value="coins"><ion-label>Ranking Monedas</ion-label></ion-segment-button>
+          </ion-segment>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        @if (socialSegment === 'xp') {
+          <ion-list lines="full">
+            @for (user of leaderboardXp; track user.uid; let i = $index) {
+              <ion-item style="background: var(--bg-card); border-radius: 10px; margin-bottom: 8px;">
+                <ion-label slot="start" style="font-weight: bold; width: 30px;">
+                  @if (i === 0) { 🥇 } @else if (i === 1) { 🥈 } @else if (i === 2) { 🥉 } @else { #{{ i + 1 }} }
+                </ion-label>
+                <ion-label>
+                  <h2>{{ user.displayName }}</h2>
+                  <p>Nivel {{ user.level }}</p>
+                </ion-label>
+                <ion-badge slot="end" color="primary">{{ user.xp }} XP</ion-badge>
+              </ion-item>
+            }
+          </ion-list>
+        }
+
+        @if (socialSegment === 'coins') {
+          <ion-list lines="full">
+            @for (user of leaderboardCoins; track user.uid; let i = $index) {
+              <ion-item style="background: var(--bg-card); border-radius: 10px; margin-bottom: 8px;">
+                <ion-label slot="start" style="font-weight: bold; width: 30px;">#{{ i + 1 }}</ion-label>
+                <ion-label>
+                  <h2>{{ user.displayName }}</h2>
+                </ion-label>
+                <ion-badge slot="end" color="warning">🪙 {{ user.coins }}</ion-badge>
+              </ion-item>
+            }
+          </ion-list>
+        }
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 
   <!-- MODAL: Tienda Virtual de Recompensas -->
   <ion-modal [isOpen]="isShopModalOpen" (didDismiss)="isShopModalOpen = false">
