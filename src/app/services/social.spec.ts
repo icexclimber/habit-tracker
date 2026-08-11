@@ -1,13 +1,20 @@
 import { TestBed } from '@angular/core/testing';
+import { SocialService } from './social.service';
+import { Firestore } from '@angular/fire/firestore';
+import { Auth } from '@angular/fire/auth';
 
-import { Social } from './social';
-
-describe('Social', () => {
-  let service: Social;
+describe('SocialService', () => {
+  let service: SocialService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Social);
+    TestBed.configureTestingModule({
+      providers: [
+        SocialService,
+        { provide: Firestore, useValue: {} },
+        { provide: Auth, useValue: {} }
+      ]
+    });
+    service = TestBed.inject(SocialService);
   });
 
   it('should be created', () => {
