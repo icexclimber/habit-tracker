@@ -104,6 +104,29 @@ ion-list {
   }
 }
 
+/* Estilos para Formularios e Inputs (Login) */
+ion-item.custom-input {
+  --background: var(--bg-card) !important;
+  --color: var(--text-main) !important;
+  --placeholder-color: var(--text-muted) !important;
+  --highlight-color-focused: var(--ion-color-primary) !important;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+ion-input {
+  --color: var(--text-main) !important;
+  --placeholder-color: var(--text-muted) !important;
+  color: var(--text-main) !important;
+}
+
+ion-button.main-button {
+  --background: var(--ion-color-primary) !important;
+  --color: #ffffff !important;
+  font-weight: 600;
+}
+
 /* Clases de utilidad custom y tarjetas */
 .section-title {
   color: var(--text-main) !important;
