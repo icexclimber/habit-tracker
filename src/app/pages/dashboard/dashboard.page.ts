@@ -1,7 +1,31 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { Router } from '@angular/router';
+
+// Componentes Standalone de Ionic
+import { 
+  IonContent, 
+  IonHeader, 
+  IonToolbar, 
+  IonTitle, 
+  IonButtons, 
+  IonButton, 
+  IonIcon, 
+  IonList, 
+  IonItem, 
+  IonLabel, 
+  IonCheckbox,
+  IonFab,
+  IonFabButton,
+  IonModal,
+  IonInput,
+  IonNote,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea
+} from '@ionic/angular/standalone';
+
 import { addIcons } from 'ionicons';
 import { 
   personCircleOutline, timeOutline, checkmarkCircleOutline, add, 
@@ -10,9 +34,9 @@ import {
   analyticsOutline, medalOutline, starOutline, chevronBackOutline, 
   chevronForwardOutline, listOutline, shareSocialOutline, trashOutline
 } from 'ionicons/icons';
+
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Auth, signOut } from '@angular/fire/auth';
-import { Router } from '@angular/router';
 import { HabitService } from '../../services/habit.service';
 
 @Component({
@@ -20,7 +44,31 @@ import { HabitService } from '../../services/habit.service';
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, ReactiveFormsModule, FormsModule]
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    FormsModule,
+    // Componentes Standalone de Ionic registrados explícitamente
+    IonContent, 
+    IonHeader, 
+    IonToolbar, 
+    IonTitle, 
+    IonButtons, 
+    IonButton, 
+    IonIcon, 
+    IonList, 
+    IonItem, 
+    IonLabel, 
+    IonCheckbox,
+    IonFab,
+    IonFabButton,
+    IonModal,
+    IonInput,
+    IonNote,
+    IonSelect,
+    IonSelectOption,
+    IonTextarea
+  ]
 })
 export class DashboardPage implements OnInit {
   
@@ -61,12 +109,28 @@ export class DashboardPage implements OnInit {
   habits: any[] = [];
 
   constructor() {
+    // Registro explícito de íconos mapeados a sus nombres kebab-case
     addIcons({ 
-      personCircleOutline, timeOutline, checkmarkCircleOutline, add, 
-      cameraOutline, imageOutline, createOutline, documentTextOutline, 
-      colorPaletteOutline, trophyOutline, logOutOutline, closeOutline, 
-      analyticsOutline, medalOutline, starOutline, chevronBackOutline, 
-      chevronForwardOutline, listOutline, shareSocialOutline, trashOutline
+      'person-circle-outline': personCircleOutline, 
+      'time-outline': timeOutline, 
+      'checkmark-circle-outline': checkmarkCircleOutline, 
+      'add': add, 
+      'camera-outline': cameraOutline, 
+      'image-outline': imageOutline, 
+      'create-outline': createOutline, 
+      'document-text-outline': documentTextOutline, 
+      'color-palette-outline': colorPaletteOutline, 
+      'trophy-outline': trophyOutline, 
+      'log-out-outline': logOutOutline, 
+      'close-outline': closeOutline, 
+      'analytics-outline': analyticsOutline, 
+      'medal-outline': medalOutline, 
+      'star-outline': starOutline, 
+      'chevron-back-outline': chevronBackOutline, 
+      'chevron-forward-outline': chevronForwardOutline, 
+      'list-outline': listOutline, 
+      'share-social-outline': shareSocialOutline, 
+      'trash-outline': trashOutline
     });
   }
 

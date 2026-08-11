@@ -5,37 +5,37 @@
         <ion-icon name="person-circle-outline" size="large"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Mis Hábitos</ion-title>
+    <ion-title>Habits</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<!-- Menú Desplegable (Popover) -->
-<ion-popover trigger="profile-menu-trigger" dismissOnSelect="true">
-  <ng-template>
-    <ion-content>
-      <ion-list>
-        <ion-item button (click)="viewAchievements()">
-          <ion-icon name="trophy-outline" slot="start"></ion-icon>
-          <ion-label>Mis Logros</ion-label>
-        </ion-item>
-        <ion-item button (click)="openAllHabits()">
-          <ion-icon name="list-outline" slot="start"></ion-icon>
-          <ion-label>Todos los Hábitos</ion-label>
-        </ion-item>
-        <ion-item button (click)="changeTheme()">
-          <ion-icon name="color-palette-outline" slot="start"></ion-icon>
-          <ion-label>Cambiar Estilo</ion-label>
-        </ion-item>
-        <ion-item button lines="none" (click)="logout()">
-          <ion-icon name="log-out-outline" slot="start" color="danger"></ion-icon>
-          <ion-label color="danger">Cerrar Sesión</ion-label>
-        </ion-item>
-      </ion-list>
-    </ion-content>
-  </ng-template>
-</ion-popover>
-
 <ion-content class="ion-padding">
+
+  <!-- Menú Desplegable (Popover) -->
+  <ion-popover trigger="profile-menu-trigger" dismissOnSelect="true">
+    <ng-template>
+      <ion-content>
+        <ion-list>
+          <ion-item button (click)="viewAchievements()">
+            <ion-icon name="trophy-outline" slot="start"></ion-icon>
+            <ion-label>Mis Logros</ion-label>
+          </ion-item>
+          <ion-item button (click)="openAllHabits()">
+            <ion-icon name="list-outline" slot="start"></ion-icon>
+            <ion-label>Todos los Hábitos</ion-label>
+          </ion-item>
+          <ion-item button (click)="changeTheme()">
+            <ion-icon name="color-palette-outline" slot="start"></ion-icon>
+            <ion-label>Cambiar Estilo</ion-label>
+          </ion-item>
+          <ion-item button lines="none" (click)="logout()">
+            <ion-icon name="log-out-outline" slot="start" color="danger"></ion-icon>
+            <ion-label color="danger">Cerrar Sesión</ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-popover>
 
   <!-- Selector Dinámico de Fechas -->
   <div class="date-selector">
@@ -49,7 +49,7 @@
   </div>
 
   <!-- Lista de Hábitos Filtrados por Día -->
-  @for (habit of filteredHabits; track habit) {
+  @for (habit of filteredHabits; track habit.id || habit.name) {
     <ion-card class="habit-card">
       <ion-card-content>
         <div class="card-header">
@@ -60,25 +60,27 @@
             </div>
             <p><ion-icon name="time-outline"></ion-icon> {{ habit.time }} | Meta: {{ habit.goal }}</p>
           </div>
-          <!-- Botón Completar (Validando la fecha seleccionada) -->
-          <ion-button shape="circle" fill="clear" class="check-btn"
+
+          <!-- Botón Completar -->
+          <ion-button shape="round" fill="clear" class="check-btn"
             [class.is-completed]="!!habit.history?.[selectedDateStr]"
             (click)="openFeedbackModal(habit)">
             <ion-icon name="checkmark-circle-outline" size="large"></ion-icon>
           </ion-button>
         </div>
-        <!-- Mapa Mensual Responsivo -->
+
+        <!-- Mapa Mensual -->
         <div class="month-heatmap-container">
           <div class="month-header">
             <span>{{ currentMonthName }}</span>
           </div>
           <div class="month-grid">
-            @for (day of getMonthProgress(habit); track day) {
+            @for (day of getMonthProgress(habit); track day.dateStr) {
               <div class="month-day-box"
                 [class.not-scheduled]="!day.scheduled"
                 [class.today]="day.isToday"
                 [class.is-selected]="day.isSelected"
-                [ngClass]="day.mood ? 'mood-' + day.mood : ''"
+                [class]="day.mood ? 'mood-' + day.mood : ''"
                 (click)="openLogDetail(day)">
                 {{ day.dayNumber }}
               </div>
@@ -89,7 +91,7 @@
     </ion-card>
   }
 
-  <!-- Estado vacío -->
+  <!-- Estado Vacío -->
   @if (filteredHabits.length === 0) {
     <div class="text-center" style="margin-top: 40px; color: var(--text-muted);">
       <p>No tienes actividades programadas para este día.</p>
@@ -104,7 +106,7 @@
   </ion-fab>
 
   <!-- ============================================== -->
-  <!-- ZONA DE MODALES                                -->
+  <!-- ZONA DE MODALES                               -->
   <!-- ============================================== -->
 
   <!-- MODAL: Centro de Control (Todos los Hábitos) -->
@@ -120,7 +122,7 @@
       </ion-header>
       <ion-content class="ion-padding">
         <ion-list lines="full">
-          @for (h of habits; track h) {
+          @for (h of habits; track h.id || h.name) {
             <ion-item class="habit-list-item">
               <ion-label>
                 <h2>{{ h.name }}</h2>
@@ -142,7 +144,7 @@
     </ng-template>
   </ion-modal>
 
-  <!-- MODAL: Resumen y Análisis Anual -->
+  <!-- MODAL: Resumen -->
   <ion-modal [isOpen]="isSummaryModalOpen" (didDismiss)="isSummaryModalOpen = false" [initialBreakpoint]="1" [breakpoints]="[0, 1]">
     <ng-template>
       <ion-header class="ion-no-border">
@@ -350,29 +352,16 @@
           <ion-card class="log-detail-card">
             <ion-card-content>
               <div class="emoji-huge">
-                @if (selectedLogDetail.mood === 1) {
-                  <span>😫</span>
-                }
-                @if (selectedLogDetail.mood === 2) {
-                  <span>😕</span>
-                }
-                @if (selectedLogDetail.mood === 3) {
-                  <span>😐</span>
-                }
-                @if (selectedLogDetail.mood === 4) {
-                  <span>🙂</span>
-                }
-                @if (selectedLogDetail.mood === 5) {
-                  <span>🤩</span>
-                }
+                @if (selectedLogDetail.mood === 1) { <span>😫</span> }
+                @if (selectedLogDetail.mood === 2) { <span>😕</span> }
+                @if (selectedLogDetail.mood === 3) { <span>😐</span> }
+                @if (selectedLogDetail.mood === 4) { <span>🙂</span> }
+                @if (selectedLogDetail.mood === 5) { <span>🤩</span> }
               </div>
               @if (selectedLogDetail.note) {
                 <h3>Notas:</h3>
-              }
-              @if (selectedLogDetail.note) {
                 <p>{{ selectedLogDetail.note }}</p>
-              }
-              @if (!selectedLogDetail.note) {
+              } @else {
                 <p style="color: var(--text-muted); font-style: italic;">Sin notas.</p>
               }
               @if (selectedLogDetail.photo) {
